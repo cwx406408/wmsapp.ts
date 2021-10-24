@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
+    "element-plus": "^1.1.0-beta.24",
     "js-cookie": "^3.0.1",
     "vue": "^3.2.20",
     "vue-router": "^4.0.0-0",
@@ -50,8 +51,10 @@
     "parserOptions": {
       "ecmaVersion": 2020
     },
-    "rules": { 
-      "@typescript-eslint/no-explicit-any":["off"]
+    "rules": {
+      "@typescript-eslint/no-explicit-any": [
+        "off"
+      ]
     }
   },
   "browserslist": [

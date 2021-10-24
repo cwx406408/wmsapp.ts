@@ -1,4 +1,4 @@
-import Cookies from '_@types_js-cookie@3.0.0@@types/js-cookie'
+import Cookies from 'js-cookie'
 import { Commit } from 'vuex'
 
 export interface Sidebar {
