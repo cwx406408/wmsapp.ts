@@ -1,5 +1,6 @@
 
-export interface SettingState{
+// 布局配置
+export interface ThemeConfigState {
   themeConfig: {
     isDrawer: boolean;
     primary: string;
@@ -49,21 +50,43 @@ export interface SettingState{
     globalViceTitle: string;
     globalI18n: string;
     globalComponentSize: string;
-  }
+  };
 }
 
-export default interface SidebarState {
-  opened: boolean,
-  withoutAnimation: boolean
+// 路由列表
+export interface RoutesListState {
+  routesList: Array<Record<string, unknown>>;
+  isColumnsMenuHover: boolean;
+  isColumnsNavHover: boolean;
 }
 
-export interface AppState{
-  sidebar: SidebarState,
-  device: string,
-  size: string
+// 路由缓存列表
+export interface KeepAliveNamesState {
+  keepAliveNames: Array<string>;
 }
 
-export interface RootState{
-  setting: SettingState,
-  app: AppState
+// TagsView 路由列表
+export interface TagsViewRoutesState {
+  tagsViewRoutes: Array<Record<string, string>>;
+  isTagsViewCurrenFull: boolean;
+}
+
+// 用户信息
+export interface UserInfosState {
+  userInfos: Record<string, string>;
+}
+
+// 后端返回原始路由(未处理时)
+export interface RequestOldRoutesState {
+  requestOldRoutes: Array<string>;
+}
+
+// 主接口(顶级类型声明)
+export interface RootStateTypes {
+  themeConfig: ThemeConfigState;
+  routesList: RoutesListState;
+  keepAliveNames: KeepAliveNamesState;
+  tagsViewRoutes: TagsViewRoutesState;
+  userInfos: UserInfosState;
+  requestOldRoutes: RequestOldRoutesState;
 }
