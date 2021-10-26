@@ -6,8 +6,7 @@ const moudulesFiles = require.context('./modules', true, /\.ts$/)
 
 const modules = moudulesFiles.keys().reduce((modules: {[x: string]: any}, path) => {
   const name = path.replace(/^\.\/modules\/(.*)\.\w+$/, '$1')
-  const value = moudulesFiles[path as keyof typeof moudulesFiles]
-  modules[name] = value
+  modules[name] = moudulesFiles(path as keyof typeof moudulesFiles)
 
   return modules
 }, {})
