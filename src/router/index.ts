@@ -4,6 +4,8 @@ import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import { Session } from '@/utils/storage'
 import { store } from '@/store'
+import { initBackEndControlRoutes } from './backEnd'
+import { initFrontEndControlRoutes } from './frontEnd'
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
@@ -85,6 +87,9 @@ export function formtTwoStageRoutes (arr:RouteRecordRaw[]): boolean | RouteRecor
   return newArr
 }
 
+/**
+ * 设置当前用户有权限的路由(多级嵌套)，缓存当前用户的一维权限集合
+ */
 export function setFilterMenuAndCacheTagsViewsRoutes ():void {
   if (dynamicRoutes[0].children) {
     store.dispatch('routesList/setRoutesList', setFilterHasAuthMenu(dynamicRoutes[0].children, store.state.userInfos.userInfos.authPageList))
@@ -92,6 +97,9 @@ export function setFilterMenuAndCacheTagsViewsRoutes ():void {
   }
 }
 
+/**
+ * 对比用户权限标识，缓存当前用户的一维权限集合
+ */
 export function setCacheTagsViewRoutes (): void {
   const authRoutes = setFilterHasAuthMenu(dynamicRoutes, store.state.userInfos.userInfos.authPageList)
   let flateningRoutes = formatFlatteningRoutes(authRoutes)
@@ -105,6 +113,12 @@ export function setCacheTagsViewRoutes (): void {
   }
 }
 
+/**
+ * 对比当前用户的权限标识，返当前用户有权限的的路由集合
+ * @param routes 当前顶级路由的子路由
+ * @param auth 当前用户的权限标识
+ * @returns 返回当前用户有权限的路由集合
+ */
 export function setFilterHasAuthMenu (routes:RouteRecordRaw[], auth: string[]): RouteRecordRaw[] {
   const menu: RouteRecordRaw[] = []
   routes.forEach((route: RouteRecordRaw) => {
@@ -133,14 +147,15 @@ export function hasAuth (auths:string[], route:RouteRecordRaw): boolean {
  * @returns 替换后的路由
  */
 export function setFilterRouteEnd ():boolean | RouteRecordRaw[] {
-  const flatingRoutes = formatFlatteningRoutes(dynamicRoutes)
+  let flatingRoutes = formatFlatteningRoutes(dynamicRoutes)
   if (flatingRoutes) {
-    const filterRouteEnd: boolean | RouteRecordRaw[] = formtTwoStageRoutes(flatingRoutes as RouteRecordRaw[])
+    flatingRoutes = flatingRoutes as RouteRecordRaw[]
+    let filterRouteEnd = formtTwoStageRoutes(flatingRoutes)
     if (filterRouteEnd) {
-      const tempRoute = (filterRouteEnd as RouteRecordRaw[])
-      if (tempRoute[0].children) {
-        tempRoute[0].children = [...setFilterRoute(tempRoute[0].children), { ...pathMatch }]
-        return tempRoute
+      filterRouteEnd = filterRouteEnd as RouteRecordRaw[]
+      if (filterRouteEnd[0].children) {
+        filterRouteEnd[0].children = [...setFilterRoute(filterRouteEnd[0].children), { ...pathMatch }]
+        return filterRouteEnd
       }
     }
     return filterRouteEnd
@@ -185,6 +200,7 @@ export function resetRoute (): void{
 }
 
 const { isRequestRoutes } = store.state.themeConfig.themeConfig
+if (!isRequestRoutes) await initFrontEndControlRoutes()
 
 router.beforeEach(async (to, from, next) => {
   NProgress.configure({ showSpinner: false })
@@ -203,6 +219,12 @@ router.beforeEach(async (to, from, next) => {
       Session.clear()
       resetRoute()
     } else {
+      if (store.state.routesList.routesList.length === 0) {
+        if (isRequestRoutes) {
+          await initBackEndControlRoutes()
+          next({ ...to, replace: true })
+        }
+      }
     }
   }
 })
