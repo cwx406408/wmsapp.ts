@@ -73,7 +73,7 @@ export interface TagsViewRoutesState {
 
 // 用户信息
 export interface UserInfosState {
-  userInfos: Record<string, string>;
+  userInfos: Record<string, string[]>;
 }
 
 // 后端返回原始路由(未处理时)

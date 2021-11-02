@@ -4,6 +4,7 @@ import router from './router'
 import { store, key } from './store'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
+import '@/theme/index.scss'
 
 const app = createApp(App)
 

@@ -9,7 +9,7 @@ const userInfosModule:Module<UserInfosState, RootStateTypes> = {
     }
   },
   mutations: {
-    SET_USER_INFOS (state, data: Record<string, string>) {
+    SET_USER_INFOS (state, data: Record<string, string[]>) {
       state.userInfos = data
     }
   },
