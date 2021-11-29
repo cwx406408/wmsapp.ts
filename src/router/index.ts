@@ -200,9 +200,9 @@ export function resetRoute (): void{
 }
 
 const { isRequestRoutes } = store.state.themeConfig.themeConfig
-if (!isRequestRoutes) await initFrontEndControlRoutes()
+if (!isRequestRoutes) initFrontEndControlRoutes()
 
-router.beforeEach(async (to, from, next) => {
+router.beforeEach((to, from, next) => {
   NProgress.configure({ showSpinner: false })
   if (to.meta.title) NProgress.start()
   const token = Session.get('token')
@@ -221,7 +221,7 @@ router.beforeEach(async (to, from, next) => {
     } else {
       if (store.state.routesList.routesList.length === 0) {
         if (isRequestRoutes) {
-          await initBackEndControlRoutes()
+          initBackEndControlRoutes()
           next({ ...to, replace: true })
         }
       }
