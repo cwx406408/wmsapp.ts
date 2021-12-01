@@ -9,6 +9,8 @@ interface Window {
   nextLoading: boolean
 }
 
+declare module 'vue-grid-layout'
+
 declare module '*.json'
 declare module '*.png'
 declare module '*.jpg'
