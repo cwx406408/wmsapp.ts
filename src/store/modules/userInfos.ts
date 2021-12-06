@@ -9,12 +9,12 @@ const userInfosModule:Module<UserInfosState, RootStateTypes> = {
     }
   },
   mutations: {
-    SET_USER_INFOS (state, data: Record<string, string[]>) {
+    SET_USER_INFOS (state, data: Record<string, unknown>) {
       state.userInfos = data
     }
   },
   actions: {
-    async setUserInfos ({ commit }, data:Record<string, string>) {
+    async setUserInfos ({ commit }, data:Record<string, unknown>) {
       if (data) {
         commit('SET_USER_INFOS', data)
       } else {

@@ -55,7 +55,7 @@ export interface ThemeConfigState {
 
 // 路由列表
 export interface RoutesListState {
-  routesList: Array<Record<string, unknown>>;
+  routesList: Array<Record<string, any>>;
   isColumnsMenuHover: boolean;
   isColumnsNavHover: boolean;
 }
@@ -73,7 +73,7 @@ export interface TagsViewRoutesState {
 
 // 用户信息
 export interface UserInfosState {
-  userInfos: Record<string, string[]>;
+  userInfos: Record<string, any>;
 }
 
 // 后端返回原始路由(未处理时)

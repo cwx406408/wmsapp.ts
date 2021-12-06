@@ -30,7 +30,7 @@ export function authDirective (app: App):void {
     }
   })
   // 多个权限验证，全都满足才显示
-  app.directive('auth-aa', {
+  app.directive('auth-all', {
     mounted (el, binding) {
       if (!judgmentSameArr(binding.value, store.state.userInfos.userInfos.authBtnList)) {
         el.parentNode.removeChild(el)
