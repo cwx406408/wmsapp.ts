@@ -6,6 +6,17 @@
   <router-view/>
 </template>
 
+<script lang="ts">
+import { defineComponent } from 'vue'
+import LockScreen from '@/layout/lockScreen/index.vue'
+export default defineComponent({
+  name: 'app',
+  components: { },
+  setup () {
+  }
+})
+</script>
+
 <style lang="less">
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
