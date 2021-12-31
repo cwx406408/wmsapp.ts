@@ -1,3 +1,4 @@
+import { RouteLocationNormalizedLoaded } from 'vue-router'
 
 // 布局配置
 export interface ThemeConfigState {
@@ -65,9 +66,20 @@ export interface KeepAliveNamesState {
   keepAliveNames: Array<string>;
 }
 
+export interface MetaData {
+  isDynamic: boolean,
+  isAffix: boolean,
+  isLink: boolean,
+  isIframe: boolean,
+  isHide: boolean
+}
+
+export interface TagsViewRouteData extends RouteLocationNormalizedLoaded {
+  url: string,
+}
 // TagsView 路由列表
 export interface TagsViewRoutesState {
-  tagsViewRoutes: Array<Record<string, string>>;
+  tagsViewRoutes: Array<TagsViewRouteData>;
   isTagsViewCurrenFull: boolean;
 }
 

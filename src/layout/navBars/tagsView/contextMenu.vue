@@ -5,7 +5,7 @@
       class="el-dropdown__popper el-popper is-light is-pure custom-contextmenu"
       role="tooltip"
       data-popper-placement="bottom"
-      :style="`top:${dropdowns.y + 5}px;left:${dropdowns.x}px`"
+      :style="`top:${dropdowns?.y + 5}px;left:${dropdowns?.x}px`"
       :key='Math.random()'
       v-show="isShow"
     >
@@ -30,8 +30,8 @@
 
 <script lang="ts">
 import { defineComponent, reactive, computed, onUnmounted, onMounted, toRefs } from 'vue'
-import { DropdownData, TagsViewData } from './interface'
-
+import { TagsViewData } from './interface'
+import { TagsViewRouteData } from '@/store/interface'
 export default defineComponent({
   name: 'layoutTagsViewContextMenu',
   props: {
@@ -54,7 +54,24 @@ export default defineComponent({
           icon: 'iconfont icon-fullscreen'
         }
       ],
-      item: {}
+      item: {
+        name: null,
+        query: {},
+        hash: '',
+        fullPath: '',
+        path: '',
+        params: {},
+        redirectedFrom: undefined,
+        matched: [],
+        url: '',
+        meta: {
+          isAffix: false,
+          isDynamic: false,
+          isIframe: false,
+          isLink: false,
+          isHide: false
+        }
+      }
     })
 
     // 父级传过来的坐标x,y值
@@ -68,9 +85,9 @@ export default defineComponent({
     }
 
     // 打开右键菜单：判断是否固定，固定则不显示关闭按钮
-    const openContextMenu = (item: DropdownData) => {
+    const openContextMenu = (item: TagsViewRouteData) => {
       state.item = item
-      item.affix ? (state.dropdownList[1].affix = true) : (state.dropdownList[1].affix = false)
+      item.meta.isAffix ? (state.dropdownList[1].affix = true) : (state.dropdownList[1].affix = false)
       closeContextMenu()
       setTimeout(() => {
         state.isShow = true
