@@ -1,4 +1,5 @@
 import { TagsViewRouteData } from '@/store/interface'
+import Sortable from 'sortablejs'
 
 export interface DropdownData {
   contextMenuClickId: number,
@@ -19,6 +20,6 @@ export interface TagsViewRouteState {
   dropdown: Record<string, string>,
   tagsRefsIndex: number,
   tagsViewList: Array<TagsViewRouteData>,
-  sortable: '',
+  sortable?: Sortable,
   tagsViewRoutesList: Array<TagsViewRouteData>
 }

@@ -76,6 +76,7 @@ export interface MetaData {
 
 export interface TagsViewRouteData extends RouteLocationNormalizedLoaded {
   url: string,
+  contextMenuClickId: number
 }
 // TagsView 路由列表
 export interface TagsViewRoutesState {
