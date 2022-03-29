@@ -1,5 +1,37 @@
 <template>
-  <div>
+  <div class="layout-navbars-tagsview" :class="{ 'layout-navbars-tagsview-shadow': getThemeConfig.layout === 'classic' }">
+    <el-scrollbar ref="scrollbarRef" @wheel.prevent="onHandleScroll">
+      <ul class="layout-navbars-tagsview-ul" :class="setTagsStyle" ref="tagsUlRef">
+        <li
+          v-for="(v, k) in tagsViewList"
+          :key="k"
+          class="layout-navbars-tagsview-ul-li"
+          :data-name="v.name"
+          :class="{ 'is-active': isActive(v)}"
+          @contextmenu.prevent="onContextmenu(v, $event)"
+          @click="onTagsClick(v, k)"
+          :ref="(el) => { if (el) tagRefs[k] = el}"
+        >
+          <i class="iconfont icon-webicon318 layout-navbars-tagsview-ul-li-iconfont font14" v-if="isActive(v)"></i>
+          <i class="layout-navbars-tagsview-ul-li-iconfont" :class="v.meta.icon" v-if="!isActive(v) && getThemeConfig.isTagsviewIcon"></i>
+          <span>{{ v.meta.title }}</span>
+          <template v-if="isActive(v)">
+            <i class="el-icon-refresh-right ml5" @click.stop="refreshCurrentTagsView($route.fullPath)"></i>
+            <i
+              class="el-icon-close layout-navbars-tagsview-ul-li-icon layout-icon-active"
+              v-if="!v.meta.isAffix"
+              @click.stop="closeCurrentTagsView(getThemeConfig.isShareTagsView ? v.path : v.url)"
+            ></i>
+          </template>
+          <i
+            class="el-icon-close layout-navbars-tagsview-ul-li-icon layout-icon-three"
+            v-if="!v.meta.isAffix"
+            @click.stop="closeCurrentTagsView(getThemeConfig.isShareTagsView ? v.path : v.url)"
+          ></i>
+        </li>
+      </ul>
+    </el-scrollbar>
+    <ContextMenu :dropdown="dropdown" ref="contextMenuRef" @currentContextmenuClick="onCurrentContextmenuClick"></ContextMenu>
   </div>
 </template>
 
@@ -10,17 +42,17 @@ import { isObjectValueEqual } from '@/utils/arrayOperations'
 import { Session } from '@/utils/storage'
 import { ElMessage } from 'element-plus'
 import Sortable from 'sortablejs'
-import { defineComponent, getCurrentInstance, reactive, ref, computed, nextTick } from 'vue'
-import { RouteLocationNormalizedLoaded, RouteRecordName, useRoute, useRouter } from 'vue-router'
+import { defineComponent, getCurrentInstance, reactive, ref, computed, nextTick, onBeforeMount, onUnmounted, onBeforeUpdate, onMounted, watch, toRefs } from 'vue'
+import { onBeforeRouteUpdate, RouteLocationNormalizedLoaded, RouteRecordName, useRoute, useRouter } from 'vue-router'
 import ContextMenu from './contextMenu.vue'
-import { TagsViewData, TagsViewRouteState } from './interface'
+import { TagsViewRouteState } from './interface'
 
 export default defineComponent({
   name: 'layoutTagsView',
   components: { ContextMenu },
   setup () {
     const { proxy } = getCurrentInstance() as any
-    const tagRefs = ref([])
+    const tagRefs = ref<any>([])
     const scrollbarRef = ref()
     const contextMenuRef = ref()
     const tagsUlRef = ref()
@@ -261,13 +293,13 @@ export default defineComponent({
     }
 
     // 当前 tagsView 项点击时
-    const onTagsClik = (v: any, k: number) => {
+    const onTagsClick = (v: any, k: number) => {
       state.tagsRefsIndex = k
       router.push(v)
     }
 
     // 处理 tagsView 高亮
-    const setTagsViewHighlight = (v: TagsViewRouteData) => {
+    const setTagsViewHighlight = (v: RouteLocationNormalizedLoaded) => {
       const params = v.query && Object.keys(v.query).length > 0 ? v.query : v.params
       if (!params || Object.keys(params).length <= 0) return v.path
       let path = ''
@@ -285,7 +317,7 @@ export default defineComponent({
     }
 
     // 鼠标滚轮滚动
-    const onHandleSrcoll = (e: any) => {
+    const onHandleScroll = (e: any) => {
       proxy.$refs.scrollbarRef.$refs.wrap.scrollLeft += e.wheelDelta / 4
     }
 
@@ -388,6 +420,230 @@ export default defineComponent({
         }
       })
     }
+
+    const onSortableResize = () => {
+      const clientWidth = document.body.clientWidth
+      getThemeConfig.value.isSortableTagsView = (clientWidth >= 1000)
+      initSortable()
+    }
+
+    onBeforeMount(() => {
+      // 初始化，防止手机端直接访问时还可以拖拽
+      onSortableResize()
+      window.addEventListener('resize', onSortableResize)
+      proxy.mittBus.on('onCurrentContextmenuClick', (data: TagsViewRouteData) => {
+        onCurrentContextmenuClick(data)
+      })
+      proxy.mittBus.on('openOrCloseSortable', () => {
+        initSortable()
+      })
+      proxy.mittBus.on('openShareTagsView', () => {
+        if (getThemeConfig.value.isShareTagsView) {
+          router.push('/home')
+          state.tagsViewList = []
+          state.tagsViewRoutesList.map((v) => {
+            if (v.meta.isAffix && !v.meta.isHide) {
+              v.url = setTagsViewHighlight(v)
+              state.tagsViewList.push({ ...v })
+            }
+          })
+        }
+      })
+    })
+
+    onUnmounted(() => {
+      proxy.mittBus.off('onCurrentContextmenuClick')
+      proxy.mittBus.off('openOrCloseSortable')
+      proxy.mittBus.off('openShareTagsView')
+      window.removeEventListener('resize', onSortableResize)
+    })
+
+    onBeforeUpdate(() => {
+      tagRefs.value = []
+    })
+
+    onMounted(() => {
+      getTagsViewRoutes()
+      initSortable()
+    })
+
+    onBeforeRouteUpdate(async (to) => {
+      state.routeActive = setTagsViewHighlight(to)
+      state.routePath = to.meta.isDynamic ? to.meta.dynamicPath as string : to.path
+      await addTagsView(to.path, to)
+      getTagsRefsIndex(getThemeConfig.value.isShareTagsView ? state.routePath : state.routeActive)
+    })
+
+    watch(store.state, (val) => {
+      if (val.tagsViewRoutes.tagsViewRoutes.length === state.tagsViewRoutesList.length) return false
+      getTagsViewRoutes()
+    })
+
+    return {
+      isActive,
+      onContextmenu,
+      getTagsViewRoutes,
+      onTagsClick,
+      tagRefs,
+      contextMenuRef,
+      scrollbarRef,
+      tagsUlRef,
+      onHandleScroll,
+      getThemeConfig,
+      setTagsStyle,
+      refreshCurrentTagsView,
+      closeCurrentTagsView,
+      onCurrentContextmenuClick,
+      ...toRefs(state)
+    }
   }
 })
 </script>
+
+<style scoped lang="scss">
+.layout-navbars-tagsview {
+  background-color: var(--el-color-white);
+  border-bottom: 1px solid #f1f2f3;
+  ::v-deep(.el-scrollbar__wrap) {
+    overflow-x: auto !important;
+  }
+  &-ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    color: var(--el-text-color-regular);
+    font-size: 12px;
+    white-space: nowrap;
+    padding: 0 15px;
+    &-li {
+      height: 26px;
+      line-height: 26px;
+      display: flex;
+      align-items: center;
+      border: 1px solid #e6e6e6;
+      padding: 0 15px;
+      margin-right: 5px;
+      border-radius: 2px;
+      position: relative;
+      z-index: 0;
+      cursor: pointer;
+      justify-content: space-between;
+      &:hover {
+        background-color: var(--color-primary-light-9);
+        color: var(--color-primary);
+        border-color: var(--color-primary-light-6);
+      }
+      &-iconfont {
+        position: relative;
+        left: -5px;
+        font-size: 12px;
+      }
+      &-icon {
+        border-radius: 100%;
+        position: relative;
+        height: 14px;
+        width: 14px;
+        text-align: center;
+        line-height: 14px;
+        right: -5px;
+        &:hover {
+          color: var(--color-whites);
+          background-color: var(--color-primary-light-3);
+        }
+      }
+      .layout-icon-active {
+        display: block;
+      }
+      .layout-icon-three {
+        display: none;
+      }
+    }
+    .is-active {
+      color: var(--color-whites);
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      transition: border-color 3s ease;
+    }
+  }
+  // 风格2
+  .tags-style-two {
+    .layout-navbars-tagsview-ul-li {
+      height: 34px !important;
+      line-height: 34px !important;
+      border: none !important;
+      .layout-navbars-tagsview-ul-li-iconfont {
+        display: none;
+      }
+      .layout-icon-active {
+        display: none;
+      }
+      .layout-icon-three {
+        display: block;
+      }
+    }
+    .is-active {
+      background: none !important;
+      color: var(--color-primary) !important;
+      border-bottom: 2px solid !important;
+      border-color: var(--color-primary) !important;
+      border-radius: 0 !important;
+    }
+  }
+  // 风格3
+  .tags-style-three {
+    .layout-navbars-tagsview-ul-li {
+      height: 34px !important;
+      line-height: 34px !important;
+      border-right: 1px solid #f6f6f6 !important;
+      border-top: none !important;
+      border-bottom: none !important;
+      border-left: none !important;
+      border-radius: 0 !important;
+      margin-right: 0 !important;
+      &:first-of-type {
+        border-left: 1px solid #f6f6f6 !important;
+      }
+      .layout-icon-active {
+        display: none;
+      }
+      .layout-icon-three {
+        display: block;
+      }
+    }
+    .is-active {
+      background: var(--el-color-white) !important;
+      color: var(--color-primary) !important;
+      border-top: 1px solid !important;
+      border-top-color: var(--color-primary) !important;
+    }
+  }
+  // 风格4
+  .tags-style-four {
+    .layout-navbars-tagsview-ul-li {
+      margin-right: 0 !important;
+      border: none !important;
+      position: relative;
+      border-radius: 3px !important;
+      .layout-icon-active {
+        display: none;
+      }
+      .layout-icon-three {
+        display: block;
+      }
+      &:hover {
+        background: none !important;
+      }
+    }
+    .is-active {
+      background: none !important;
+      color: var(--color-primary) !important;
+    }
+  }
+}
+.layout-navbars-tagsview-shadow {
+  box-shadow: rgb(0 21 41 / 4%) 0px 1px 4px;
+}
+</style>
