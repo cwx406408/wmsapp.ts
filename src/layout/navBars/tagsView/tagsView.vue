@@ -1,6 +1,6 @@
 <template>
   <div class="layout-navbars-tagsview" :class="{ 'layout-navbars-tagsview-shadow': getThemeConfig.layout === 'classic' }">
-    <el-scrollbar ref="scrollbarRef" @wheel.prevent="onHandleScroll">
+    <el-scrollbar ref="scrollbarRef" @wheel="onHandleScroll">
       <ul class="layout-navbars-tagsview-ul" :class="setTagsStyle" ref="tagsUlRef">
         <li
           v-for="(v, k) in tagsViewList"
@@ -13,19 +13,19 @@
           :ref="(el) => { if (el) tagRefs[k] = el}"
         >
           <i class="iconfont icon-webicon318 layout-navbars-tagsview-ul-li-iconfont font14" v-if="isActive(v)"></i>
-          <i class="layout-navbars-tagsview-ul-li-iconfont" :class="v.meta.icon" v-if="!isActive(v) && getThemeConfig.isTagsviewIcon"></i>
-          <span>{{ v.meta.title }}</span>
+          <i class="layout-navbars-tagsview-ul-li-iconfont" :class="v.meta?.icon" v-if="!isActive(v) && getThemeConfig.isTagsviewIcon"></i>
+          <span>{{ v.meta?.title }}</span>
           <template v-if="isActive(v)">
             <i class="el-icon-refresh-right ml5" @click.stop="refreshCurrentTagsView($route.fullPath)"></i>
             <i
               class="el-icon-close layout-navbars-tagsview-ul-li-icon layout-icon-active"
-              v-if="!v.meta.isAffix"
+              v-if="!v.meta?.isAffix"
               @click.stop="closeCurrentTagsView(getThemeConfig.isShareTagsView ? v.path : v.url)"
             ></i>
           </template>
           <i
             class="el-icon-close layout-navbars-tagsview-ul-li-icon layout-icon-three"
-            v-if="!v.meta.isAffix"
+            v-if="!v.meta?.isAffix"
             @click.stop="closeCurrentTagsView(getThemeConfig.isShareTagsView ? v.path : v.url)"
           ></i>
         </li>
@@ -116,8 +116,8 @@ export default defineComponent({
       })
       if (current.length < 0) {
         const findItem = state.tagsViewRoutesList.find(v => v.path === isDynamicPath)
-        if (findItem?.meta.isAffix) return false
-        if (findItem?.meta.isLink && !findItem.meta.isIframe) return false
+        if (findItem?.meta?.isAffix) return false
+        if (findItem?.meta?.isLink && !findItem.meta.isIframe) return false
         if (findItem) {
           to.meta.isDynamic ? (findItem.params = to.params) : (findItem.query = to.query)
           findItem.url = setTagsViewHighlight(findItem)
@@ -133,7 +133,7 @@ export default defineComponent({
         state.tagsViewList = await Session.get('tagsViewList')
       } else {
         await state.tagsViewRoutesList.map((v) => {
-          if (v.meta.isAffix && !v.meta.isHide) {
+          if (v.meta && v.meta.isAffix && !v.meta.isHide) {
             v.url = setTagsViewHighlight(v)
             state.tagsViewList.push(v)
           }
@@ -144,11 +144,39 @@ export default defineComponent({
 
     // 获取 vuex 中的 tagsViewRoutes 列表
     const getTagsViewRoutes = async () => {
-      state.routeActive = await setTagsViewHighlight(route as TagsViewRouteData)
+      state.routeActive = await setTagsViewHighlight(transRouteLocationToTagsViewRouteData(route))
       state.routePath = (await route.meta.isDynamic) ? String(route.meta.isDynamicPath) : route.path
       state.tagsViewList = []
       state.tagsViewRoutesList = store.state.tagsViewRoutes.tagsViewRoutes
       initTagsView()
+    }
+
+    const transRouteLocationToTagsViewRouteData = (from: RouteLocationNormalizedLoaded): TagsViewRouteData => {
+      if (!from) {
+        return { path: '', url: '' }
+      }
+      const res: TagsViewRouteData = {
+        path: from.path,
+        fullPath: from.fullPath,
+        query: from.query,
+        hash: from.hash,
+        name: from.name as string,
+        params: from.params,
+        url: from.path,
+        meta: {
+          isAffix: from.meta.isAffix as boolean,
+          isDynamic: from.meta.isDynamic as boolean,
+          isHide: from.meta.isHide as boolean,
+          isIframe: from.meta.isIframe as boolean,
+          isKeepAlive: from.meta.isKeepAlive as boolean,
+          isLink: from.meta.isLink as boolean,
+          auth: from.meta.auth as Array<string>,
+          icon: from.meta.icon as string,
+          title: from.meta.isAffix as string
+        }
+      }
+
+      return res
     }
 
     // 1、添加 tagsView:未设置隐藏(isHide)也添加到 tagsView 中（可开启多标签详情，单标签详情）
@@ -167,7 +195,7 @@ export default defineComponent({
         }
         const item = state.tagsViewRoutesList.find(v => v.path === to.meta.isDynamicPath)
         if (item) {
-          if (item.meta.isLink && !item.meta.isIframe) return false
+          if (item.meta?.isLink && !item.meta.isIframe) return false
           if (to && to.meta.isDynamic) item.params = to.params ? to.params : route.params
           else item.query = to.query ? to.query : route.query
 
@@ -186,12 +214,12 @@ export default defineComponent({
     // 3、关闭当前tagsview: 如果设置了固定，则不可以关闭
     const closeCurrentTagsView = (path: string) => {
       state.tagsViewList.map((v, k, arr) => {
-        if (!v.meta.isAffix) {
+        if (!v.meta?.isAffix) {
           if (getThemeConfig.value.isShareTagsView ? v.path === path : v.url === path) {
             state.tagsViewList.splice(k, 1)
             setTimeout(() => {
               if (state.tagsViewList.length === k && getThemeConfig.value.isShareTagsView ? state.routePath === path : state.routeActive === path) {
-                if (arr[arr.length - 1].meta.isDynamic) {
+                if (arr[arr.length - 1].meta?.isDynamic) {
                   if (k !== arr.length) router.push({ name: arr[k].name as any, params: arr[k].params })
                   else router.push({ name: arr[arr.length - 1].name as any, params: arr[arr.length - 1].params })
                 } else {
@@ -210,7 +238,7 @@ export default defineComponent({
     const closeOtherTagsView = (path: string) => {
       state.tagsViewList = []
       state.tagsViewRoutesList.map((v) => {
-        if (v.meta.isAffix && !v.meta.isHide) state.tagsViewList.push({ ...v })
+        if (v.meta && v.meta.isAffix && !v.meta.isHide) state.tagsViewList.push({ ...v })
       })
       addTagsView(path, route)
     }
@@ -219,7 +247,7 @@ export default defineComponent({
     const closeAllTagsView = () => {
       state.tagsViewList = []
       state.tagsViewRoutesList.map((v) => {
-        if (v.meta.isAffix && !v.meta.isHide) {
+        if (v.meta && v.meta.isAffix && !v.meta.isHide) {
           state.tagsViewList.push({ ...v })
         }
         if (state.tagsViewList.length !== 0) {
@@ -233,7 +261,7 @@ export default defineComponent({
     const openCurrentFullScreen = async (path: string) => {
       const item = state.tagsViewList.find((v) => getThemeConfig.value.isShareTagsView ? v.path === path : v.url === path)
       if (item) {
-        if (item.meta.isDynamic) await router.push({ name: item.name as any, params: item.params })
+        if (item.meta && item.meta.isDynamic) await router.push({ name: item.name as any, params: item.params })
         else await router.push({ path: item.path, query: item.query })
       }
       store.dispatch('tagsViewRoutes/setCurrenFullscreen', true)
@@ -245,21 +273,21 @@ export default defineComponent({
       const itemRoute = Session.get('tagsViewList') ? Session.get('tagsViewList') as Array<TagsViewRouteData> : state.tagsViewList
       return itemRoute.find((v) => {
         if (v.path === path &&
-        isObjectValueEqual(v.meta.isDynamic ? v.params : v.query, cParams)) return v
+        isObjectValueEqual(v.meta?.isDynamic ? v.params : v.query, cParams)) return v
         else if (v.path === path && Object.keys(cParams).length <= 0) return v
       })
     }
 
     // 当前右键菜单
     const onCurrentContextmenuClick = async (item: TagsViewRouteData) => {
-      const cParams = item.meta.isDynamic ? item.params : item.query
+      const cParams = item.meta?.isDynamic ? item.params : item.query
       const currentTagsViewRouteData = getCurrentRouteItem(item.path, cParams)
       if (!currentTagsViewRouteData) return ElMessage({ type: 'warning', message: '请正确输入路径及完整参数（query、params）' })
       const { path, name, params, query, meta, url } = currentTagsViewRouteData
       switch (item.contextMenuClickId) {
         case 0:
           // 刷新当前
-          if (meta.isDynamic) await router.push({ name: name as RouteRecordName, params })
+          if (meta?.isDynamic) await router.push({ name: name as RouteRecordName, params })
           else await router.push({ path, query })
           refreshCurrentTagsView(route.fullPath)
           break
@@ -269,7 +297,7 @@ export default defineComponent({
           break
         case 2:
           // 关闭其他
-          if (meta.isDynamic) await router.push({ name: name as RouteRecordName, params })
+          if (meta?.isDynamic) await router.push({ name: name as RouteRecordName, params })
           else await router.push({ path, query })
           closeOtherTagsView(path)
           break
@@ -299,7 +327,7 @@ export default defineComponent({
     }
 
     // 处理 tagsView 高亮
-    const setTagsViewHighlight = (v: RouteLocationNormalizedLoaded) => {
+    const setTagsViewHighlight = (v: TagsViewRouteData) => {
       const params = v.query && Object.keys(v.query).length > 0 ? v.query : v.params
       if (!params || Object.keys(params).length <= 0) return v.path
       let path = ''
@@ -308,7 +336,7 @@ export default defineComponent({
           path += params[i]
         }
       }
-      return `${v.meta.isDynamic ? v.meta.isDynamic : v.path}-${path}`
+      return `${(v.meta && v.meta.isDynamic) ? v.meta.isDynamic : v.path}-${path}`
     }
 
     // 更新滚动条显示
@@ -442,7 +470,7 @@ export default defineComponent({
           router.push('/home')
           state.tagsViewList = []
           state.tagsViewRoutesList.map((v) => {
-            if (v.meta.isAffix && !v.meta.isHide) {
+            if (v.meta?.isAffix && !v.meta.isHide) {
               v.url = setTagsViewHighlight(v)
               state.tagsViewList.push({ ...v })
             }
@@ -468,7 +496,7 @@ export default defineComponent({
     })
 
     onBeforeRouteUpdate(async (to) => {
-      state.routeActive = setTagsViewHighlight(to)
+      state.routeActive = setTagsViewHighlight(transRouteLocationToTagsViewRouteData(to))
       state.routePath = to.meta.isDynamic ? to.meta.dynamicPath as string : to.path
       await addTagsView(to.path, to)
       getTagsRefsIndex(getThemeConfig.value.isShareTagsView ? state.routePath : state.routeActive)

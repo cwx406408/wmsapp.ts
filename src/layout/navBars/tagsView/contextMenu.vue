@@ -55,14 +55,12 @@ export default defineComponent({
         }
       ],
       item: {
-        name: null,
+        name: '',
         query: {},
         hash: '',
         fullPath: '',
         path: '',
         params: {},
-        redirectedFrom: undefined,
-        matched: [],
         url: '',
         meta: {
           isAffix: false,
@@ -81,13 +79,14 @@ export default defineComponent({
 
     // 当前项菜单点击
     const onCurrentContextMenuClick = (contextMenuClickId: number) => {
-      emit('onCurrentContextMenuClick', Object.assign({}, { contextMenuClickId }, state.item))
+      state.item.contextMenuClickId = contextMenuClickId
+      emit('onCurrentContextMenuClick', state.item)
     }
 
     // 打开右键菜单：判断是否固定，固定则不显示关闭按钮
     const openContextMenu = (item: TagsViewRouteData) => {
       state.item = item
-      item.meta.isAffix ? (state.dropdownList[1].affix = true) : (state.dropdownList[1].affix = false)
+      item.meta?.isAffix ? (state.dropdownList[1].affix = true) : (state.dropdownList[1].affix = false)
       closeContextMenu()
       setTimeout(() => {
         state.isShow = true

@@ -67,16 +67,30 @@ export interface KeepAliveNamesState {
 }
 
 export interface MetaData {
-  isDynamic: boolean,
-  isAffix: boolean,
-  isLink: boolean,
-  isIframe: boolean,
-  isHide: boolean
+  isDynamic?: boolean,
+  isAffix?: boolean,
+  isLink?: boolean,
+  link?: string,
+  isIframe?: boolean,
+  isHide?: boolean,
+  auth?: Array<string>,
+  icon?: string,
+  isKeepAlive?: boolean,
+  title?: string
 }
 
-export interface TagsViewRouteData extends RouteLocationNormalizedLoaded {
+export interface TagsViewRouteData {
   url: string,
-  contextMenuClickId: number
+  contextMenuClickId?: number,
+  name?: string,
+  path: string,
+  query?: any,
+  hash?: string,
+  meta?: MetaData,
+  fullPath?: string,
+  params?: any,
+  redirect?: string,
+  children?: Array<TagsViewRouteData>
 }
 // TagsView 路由列表
 export interface TagsViewRoutesState {
