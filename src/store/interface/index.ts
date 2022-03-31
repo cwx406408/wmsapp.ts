@@ -54,20 +54,9 @@ export interface ThemeConfigState {
   };
 }
 
-// 路由列表
-export interface RoutesListState {
-  routesList: Array<Record<string, any>>;
-  isColumnsMenuHover: boolean;
-  isColumnsNavHover: boolean;
-}
-
-// 路由缓存列表
-export interface KeepAliveNamesState {
-  keepAliveNames: Array<string>;
-}
-
 export interface MetaData {
   isDynamic?: boolean,
+  dynamicPath?: string,
   isAffix?: boolean,
   isLink?: boolean,
   link?: string,
@@ -77,6 +66,26 @@ export interface MetaData {
   icon?: string,
   isKeepAlive?: boolean,
   title?: string
+}
+
+// 路由数据详情
+export interface RouteData{
+  name: string,
+  path: string,
+  meta: MetaData,
+  children: Array<RouteData>
+}
+
+// 路由列表
+export interface RoutesListState {
+  routesList: Array<RouteData>;
+  isColumnsMenuHover: boolean;
+  isColumnsNavHover: boolean;
+}
+
+// 路由缓存列表
+export interface KeepAliveNamesState {
+  keepAliveNames: Array<string>;
 }
 
 export interface TagsViewRouteData {
