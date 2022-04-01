@@ -1,5 +1,5 @@
 <template>
-  <div class="layout-view-bg-white flex layout-view-link" :style="{ height: `calc(100vh - ${setLinkHeight})`}">
+  <div class="layout-view-bg-white flex layout-view-link" :style="{ height: `calc(100vh - ${setLinkHeight}`}">
     <a :href="currentRouteMeta.link" target="_blank" rel="opener" class="flex-margin">
       {{ currentRouteMeta.title }}：{{ currentRouteMeta.link }}
     </a>
