@@ -1,6 +1,6 @@
 import { RouteRecordRaw } from 'vue-router'
 
-export const dynamicRoutes:Array<RouteRecordRaw> = [
+export const dynamicRoutes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: '/',
@@ -16,7 +16,8 @@ export const dynamicRoutes:Array<RouteRecordRaw> = [
         component: () => import('@/views/Home.vue'),
         meta: {
           title: 'message.router.home',
-          isLink: '',
+          isLink: false,
+          link: '',
           isHide: false,
           isKeepAlive: true,
           isAffix: true,

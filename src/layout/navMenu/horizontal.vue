@@ -47,15 +47,18 @@ export default defineComponent({
       defaultActive: ''
     })
 
+    // 获取父级菜单数据
     const menuLists = computed(() => {
       return props.menuList
     })
 
+    // 设置横向滚动条可以鼠标滚轮滚动
     const onElMenuHorizontalScroll = (e: any) => {
       const eventData = e.wheelDelta || -e.deltaY * 40
       proxy.$refs.elMenuHorizontalScrollRef.$refs.wrap.scrollLeft = proxy.$refs.elMenuHorizontalScrollRef.$refs.wrap.scrollLeft + eventData
     }
 
+    // 初始化数据，页面刷新时，滚动条滚动到对应位置
     const initElMenuOffsetLeft = () => {
       nextTick(() => {
         const els: any = document.querySelector('.el-menu.el-menu--horizontal li.is-active')
@@ -64,6 +67,7 @@ export default defineComponent({
       })
     }
 
+    // 路由过滤递归函数
     const filterRoutesFun = (arr: Array<RouteData>) => {
       return arr.filter((item) => item.meta.isHide)
         .map((item) => {
@@ -72,6 +76,7 @@ export default defineComponent({
         })
     }
 
+    // 传送当前子级数据到菜单
     const setSendClassicChildren = (path: string) => {
       const currentPathSplit = path.split('/')
       // const currentData: any = {}
@@ -86,6 +91,7 @@ export default defineComponent({
       // return currentData
     }
 
+    // 设置页面当前路由高亮
     const setCurrentRouterHighlight = (currentRoute: RouteLocationNormalizedLoaded) => {
       const { path, meta } = currentRoute
       if (store.state.themeConfig.themeConfig.layout === 'classic') {

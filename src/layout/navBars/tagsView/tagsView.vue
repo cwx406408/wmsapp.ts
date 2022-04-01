@@ -206,7 +206,7 @@ export default defineComponent({
       })
     }
 
-    // 关闭当前 tagsview
+    // 刷新当前 tagsview
     const refreshCurrentTagsView = (fullPath: string) => {
       proxy.mittBus.emit('onTagsViewRefreshRouterView', fullPath)
     }
