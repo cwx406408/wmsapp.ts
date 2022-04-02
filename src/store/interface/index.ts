@@ -1,5 +1,3 @@
-import { RouteLocationNormalizedLoaded } from 'vue-router'
-
 // 布局配置
 export interface ThemeConfigState {
   themeConfig: {

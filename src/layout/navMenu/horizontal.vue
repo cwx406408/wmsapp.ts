@@ -71,16 +71,16 @@ export default defineComponent({
     // 传送当前子级数据到菜单
     const setSendClassicChildren = (path: string) => {
       const currentPathSplit = path.split('/')
-      // const currentData: any = {}
+      const currentData: any = {}
       filterRoutesFun(store.state.routesList.routesList).map((v) => {
         if (v.path === `/${currentPathSplit[1]}`) {
-          // currentData.item = [{ ...v }]
-          // if (v.children) currentData.children = v.children
-          return v
+          currentData.item = [{ ...v }]
+          currentData.children = [{ ...v }]
+          if (v.children) currentData.children = v.children
         }
       })
 
-      // return currentData
+      return currentData
     }
 
     // 设置页面当前路由高亮
