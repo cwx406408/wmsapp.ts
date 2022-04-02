@@ -31,7 +31,7 @@
 <script lang="ts">
 import { computed, defineComponent, getCurrentInstance, onMounted, reactive, toRefs, watch } from 'vue'
 import SubItem from '@/layout/navMenu/subItem.vue'
-import { TagsViewRouteData } from '@/store/interface'
+import { RouteData } from '@/store/interface'
 import { useStore } from '@/store'
 import { onBeforeRouteUpdate, RouteLocationNormalizedLoaded, useRoute } from 'vue-router'
 export default defineComponent({
@@ -39,7 +39,7 @@ export default defineComponent({
   components: { SubItem },
   props: {
     menuList: {
-      default: (): Array<TagsViewRouteData> => []
+      default: (): Array<RouteData> => []
     }
   },
   setup (props) {

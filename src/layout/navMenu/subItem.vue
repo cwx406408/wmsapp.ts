@@ -23,13 +23,13 @@
 </template>
 
 <script lang="ts">
-import { TagsViewRouteData } from '@/store/interface'
+import { RouteData } from '@/store/interface'
 import { computed, defineComponent } from 'vue'
 export default defineComponent({
   name: 'navMenuSubItem',
   props: {
     chil: {
-      default: (): Array<TagsViewRouteData> => []
+      default: (): Array<RouteData> => []
     }
   },
   setup (props) {

@@ -35,8 +35,8 @@ export default defineComponent({
 
     const setIframeHeight = computed(() => {
       const { isTagsview } = store.state.themeConfig.themeConfig
-      const { isTagsViewCurrenFull } = store.state.tagsViewRoutes
-      if (isTagsViewCurrenFull) return '0px'
+      const { isTagsViewCurrentFull } = store.state.tagsViewRoutes
+      if (isTagsViewCurrentFull) return '0px'
       else {
         if (isTagsview) return '83px'
         else return '49px'

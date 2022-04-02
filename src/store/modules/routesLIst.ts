@@ -1,5 +1,5 @@
 import { Module } from 'vuex'
-import { RoutesListState, RootStateTypes } from '@/store/interface/index'
+import { RoutesListState, RootStateTypes, RouteData } from '@/store/interface/index'
 
 const routesListModule: Module<RoutesListState, RootStateTypes> = {
   namespaced: true,
@@ -10,8 +10,8 @@ const routesListModule: Module<RoutesListState, RootStateTypes> = {
   },
   mutations: {
     // 设置路由
-    SET_ROUTES_LIST (state: RoutesListState, data: Array<Record<string, unknown>>):void{
-      state.routesList = data
+    SET_ROUTES_LIST (state: RoutesListState, data: Array<Record<string, any>>):void{
+      state.routesList = data as Array<RouteData>
     },
 
     // 设置分栏布局，鼠标是否移入移出(菜单)

@@ -30,14 +30,15 @@
 <script lang="ts">
 import { computed, defineComponent, getCurrentInstance, nextTick, onBeforeMount, onMounted, reactive, toRefs } from 'vue'
 import SubItem from '@/layout/navMenu/subItem.vue'
-import { RouteData, TagsViewRouteData } from '@/store/interface'
+import { RouteData } from '@/store/interface'
 import { onBeforeRouteUpdate, RouteLocationNormalizedLoaded, useRoute } from 'vue-router'
 import { useStore } from '@/store/index'
+import { filterRoutesFun } from '../utils/filterRoutesFun'
 export default defineComponent({
   name: 'navMenuHorizontal',
   components: { SubItem },
   props: {
-    menuList: (): Array<TagsViewRouteData> => []
+    menuList: (): Array<RouteData> => []
   },
   setup (props) {
     const { proxy } = getCurrentInstance() as any
@@ -65,15 +66,6 @@ export default defineComponent({
         if (!els) return false
         proxy.$refs.elMenuHorizontalScrollRef.$refs.wrap.scrollLeft = els.offsetLeft
       })
-    }
-
-    // 路由过滤递归函数
-    const filterRoutesFun = (arr: Array<RouteData>) => {
-      return arr.filter((item) => item.meta.isHide)
-        .map((item) => {
-          if (item.children) item.children = filterRoutesFun(item.children)
-          return item
-        })
     }
 
     // 传送当前子级数据到菜单

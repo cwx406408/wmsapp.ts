@@ -104,7 +104,7 @@ export interface TagsViewRouteData {
 // TagsView 路由列表
 export interface TagsViewRoutesState {
   tagsViewRoutes: Array<TagsViewRouteData>;
-  isTagsViewCurrenFull: boolean;
+  isTagsViewCurrentFull: boolean;
 }
 
 // 用户信息
