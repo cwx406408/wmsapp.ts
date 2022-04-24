@@ -71,6 +71,7 @@ export interface RouteData{
   name: string,
   path: string,
   meta: MetaData,
+  redirect?: string,
   children: Array<RouteData>
 }
 
