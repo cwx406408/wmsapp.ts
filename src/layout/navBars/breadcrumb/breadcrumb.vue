@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts">
-import { useStore } from '@/store/index'
+import { useStore } from '@/store'
 import { RouteData } from '@/store/interface'
 import { computed, defineComponent, getCurrentInstance, onMounted, reactive, toRefs } from 'vue'
 import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
