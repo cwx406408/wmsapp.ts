@@ -7,7 +7,7 @@
  */
 export const Local = {
   // 设置永久缓存
-  set (key: string, val: Record<string, unknown>):void {
+  set<T> (key: string, val: T):void {
     window.localStorage.setItem(key, JSON.stringify(val))
   },
 
